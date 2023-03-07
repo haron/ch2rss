@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ch2rss: convert Telegram channel to RSS feed</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <style>
+body {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 90vh;
+  text-align: center;
+  word-wrap: break-word;
+}
+h1 {
+  font-weight: normal;
+  font-size: 2.3em;
+  color: #555;
+}
+div {
+  padding-top: 1em;
+}
+div.big {
+  font-size: 1.5em;
+  align-items: center;
+  text-align: center;
+}
+input {
+  margin-left: -0.2em;
+  border: 1px solid darkgray;
+  font-size: 1em;
+}
+input:valid {
+  background-color: lightblue;
+}
+input:invalid {
+  background-color: lightpink;
+}
+div#source a, div#source a:visited {
+  color: gray;
+}
+  </style>
+</head>
+<body>
+  <script>
+window.addEventListener("load", (event) => {
+  document.querySelector("#channel").addEventListener("input", (event) => {
+    link = "";
+    if (event.target.checkValidity() && event.target.value) {
+      link = "https://ch2rss.fflow.net/" + event.target.value;
+    }
+    elem = document.querySelector("#rss_link");
+    elem.href = link;
+    elem.innerText = link;
+  });
+});
+  </script>
+  <h1>Create RSS feed from a Telegram channel</h1>
+  <div class="big">
+    <label for="channel">t.me/</label>
+    <input type="text" name="channel" id="channel" placeholder="channel name" size="17" pattern="^[A-Za-z0-9_]{5,32}$" title="5 to 32 symbols: letters, digits and _">
+  </div>
+  <div id="link" class="big">
+    Link to the RSS feed:&nbsp;<a id="rss_link" href=""></a>
+  </div>
+  <div id="source">
+    <a target="_blank" href="https://github.com/haron/ch2rss">Source on GitHub</a>
+  </div>
+</body>
+</html>

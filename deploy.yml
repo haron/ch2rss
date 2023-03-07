@@ -1,0 +1,30 @@
+#!/usr/bin/env ansible-playbook
+
+- name: Deploy
+  hosts: all
+  gather_facts: false
+  vars:
+    env: prod
+    prefix: /var/www/ch2rss-{{ env }}
+  tasks:
+    - name: create virtualenv
+      command: python3.11 -m venv {{ prefix }}
+      args:
+        creates: "{{ prefix }}/bin"
+      tags: full_deploy
+
+    - name: upload {{ playbook_dir }} to {{ prefix }}
+      synchronize: src={{ playbook_dir }}/ dest={{ prefix }} archive=no recursive=yes perms=yes
+
+    - name: install deps
+      command: bin/pip install -r requirements.txt
+      args:
+        chdir: "{{ prefix }}"
+      tags: full_deploy
+
+    - name: install supervisor config
+      file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/ch2rss.conf
+      tags: full_deploy
+
+    - name: restart process
+      supervisorctl: name=ch2rss state=restarted

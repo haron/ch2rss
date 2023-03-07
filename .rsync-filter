@@ -1,0 +1,9 @@
+- /.*
+- /*.yml
+- __pycache__
+- /ansible*
+- /hosts
+- *.sw*
+- *.git*
+- *.bak
+- /localpy
