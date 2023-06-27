@@ -6,3 +6,4 @@ Flask-Caching==2.0.2
 pylibmc==1.6.3
 uWSGI==2.0.21
 rfeed==1.1.1
+cssutils==2.6.0

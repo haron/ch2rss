@@ -4,8 +4,10 @@ from rfeed import Feed, Item
 from datetime import datetime
 from flask import Flask, make_response
 from flask_caching import Cache
+from cssutils import parseStyle
 import os
 import re
+from textwrap import shorten
 import sys
 
 
@@ -55,10 +57,18 @@ def get_text_from_div(div):
         return get_link_from_div(div)
 
 
+def get_images_from_div(div):
+    ret = []
+    for elem in div.select("a[class~='tgme_widget_message_photo_wrap']"):
+        style = parseStyle(elem["style"])
+        ret.append(re.sub(r'^url\((.+)\)$', r'\1', style.backgroundImage))
+    return ret
+
+
 def get_item_from_div(div):
     return {
         "link": get_link_from_div(div),
-        "title": get_text_from_div(div),
+        "title": shorten(get_text_from_div(div), width=250, placeholder="..."),
         "description": get_text_from_div(div),
         "pubDate": datetime.fromisoformat(div.select("time[class='time']")[0].attrs["datetime"]),
     }
