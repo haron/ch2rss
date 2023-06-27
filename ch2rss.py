@@ -6,6 +6,7 @@ from flask import Flask, make_response
 from flask_caching import Cache
 import os
 import re
+import sys
 
 
 app = Flask(__name__)
@@ -49,7 +50,7 @@ def get_link_from_div(div):
 def get_text_from_div(div):
     elems = div.select("div[class~='tgme_widget_message_text']")
     if elems:
-        return elems[0].text
+        return elems[0].get_text("\n", strip=True)
     else:
         return get_link_from_div(div)
 
@@ -88,3 +89,7 @@ def channel_to_rss(channel):
         items=[Item(**get_item_from_div(d)) for d in get_message_divs(doc)],
     )
     return feed.rss()
+
+
+if __name__ == "__main__":
+    print(channel_to_rss(sys.argv[1]))
