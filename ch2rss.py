@@ -29,7 +29,7 @@ class ChannelNotFound(Exception):
 @app.route("/<channel>")
 @cache.cached(timeout=cache_seconds)
 def rss(channel):
-    if not re.match("^\w{5,32}$", channel):
+    if not re.match(r"^\w{5,32}$", channel):
         return "Invalid channel name", 400
 
     try:
@@ -37,7 +37,7 @@ def rss(channel):
         resp.headers["Content-type"] = "text/xml;charset=UTF-8"
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
-    except ChannelNotFound as e:
+    except ChannelNotFound:
         return "Channel not found", 404
 
 

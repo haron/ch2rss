@@ -7,11 +7,14 @@
     env: prod
     prefix: /var/www/ch2rss-{{ env }}
   tasks:
+    - name: flake8
+      local_action: shell which flake8 && flake8 --config ./.flake8 *.py
+
     - name: create virtualenv
-      command: python3.11 -m venv {{ prefix }}
+      command: python3.12 -m venv {{ prefix }}
       args:
         creates: "{{ prefix }}/bin"
-      tags: full_deploy
+      tags: full
 
     - name: upload {{ playbook_dir }} to {{ prefix }}
       synchronize: src={{ playbook_dir }}/ dest={{ prefix }} archive=no recursive=yes perms=yes
@@ -20,11 +23,11 @@
       command: bin/pip install -r requirements.txt
       args:
         chdir: "{{ prefix }}"
-      tags: full_deploy
+      tags: full
 
     - name: install supervisor config
       file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/ch2rss.conf
-      tags: full_deploy
+      tags: full
 
     - name: restart process
       supervisorctl: name=ch2rss state=restarted

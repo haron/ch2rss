@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>ch2rss: convert Telegram channel to RSS feed</title>
+  <title>ch2rss: Create RSS feed from a Telegram channel</title>
   <!-- <link rel="stylesheet" href="style.css"> -->
   <style>
 body {
@@ -43,6 +43,9 @@ input:invalid {
 div#source a, div#source a:visited {
   color: gray;
 }
+#source {
+  padding-top: 4em;
+}
   </style>
 </head>
 <body>
@@ -62,7 +65,7 @@ window.addEventListener("load", (event) => {
   <h1>Create RSS feed from a Telegram channel</h1>
   <div class="big">
     <label for="channel">t.me/</label>
-    <input type="text" name="channel" id="channel" placeholder="channel name" size="17" pattern="^[A-Za-z0-9_]{5,32}$" title="5 to 32 symbols: letters, digits and _">
+    <input type="text" name="channel" id="channel" size="25" placeholder="channel name, 5-32 symbols" pattern="^[A-Za-z][A-Za-z0-9_]{4,31}$" title="5 to 32 symbols: letters, digits and _, starting with a letter">
   </div>
   <div id="link" class="big">
     Link to the RSS feed:&nbsp;<a id="rss_link" href=""></a>

@@ -1,0 +1,5 @@
+[flake8]
+ignore = E731, W503, E127, E128, E124, E402
+show_source = True
+jobs = 8
+max-line-length = 150
