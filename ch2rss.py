@@ -1,4 +1,4 @@
-import requests
+import httpx
 from bs4 import BeautifulSoup
 from rfeed import Feed, Item
 from datetime import datetime
@@ -9,6 +9,7 @@ import os
 import re
 from textwrap import shorten
 import sys
+import asyncio
 
 
 app = Flask(__name__)
@@ -28,12 +29,12 @@ class ChannelNotFound(Exception):
 
 @app.route("/<channel>")
 @cache.cached(timeout=cache_seconds)
-def rss(channel):
+async def rss(channel):
     if not re.match(r"^\w{5,32}$", channel):
         return "Invalid channel name", 400
 
     try:
-        resp = make_response(channel_to_rss(channel))
+        resp = make_response(await channel_to_rss(channel))
         resp.headers["Content-type"] = "text/xml;charset=UTF-8"
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
@@ -74,10 +75,15 @@ def get_item_from_div(div):
     }
 
 
-def get_doc_from_url(url):
-    res = requests.get(url)
-    res.raise_for_status()
-    return BeautifulSoup(res.content, "lxml")
+async def get_doc_from_url(url):
+    try:
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url)
+            res.raise_for_status()
+        return BeautifulSoup(res.content, "lxml")
+    except httpx.HTTPStatusError as e:
+        if "Redirect response" in str(e):
+            raise ChannelNotFound()
 
 
 def channel_not_found(doc):
@@ -86,9 +92,9 @@ def channel_not_found(doc):
         return True
 
 
-def channel_to_rss(channel):
+async def channel_to_rss(channel):
     url = f"https://t.me/s/{channel}"
-    doc = get_doc_from_url(url)
+    doc = await get_doc_from_url(url)
     if channel_not_found(doc):
         raise ChannelNotFound()
     feed = Feed(
@@ -101,5 +107,9 @@ def channel_to_rss(channel):
     return feed.rss()
 
 
+async def cli_main():
+    print(await channel_to_rss(sys.argv[1]))
+
+
 if __name__ == "__main__":
-    print(channel_to_rss(sys.argv[1]))
+    asyncio.run(cli_main())
