@@ -10,10 +10,12 @@ import re
 from textwrap import shorten
 import sys
 import asyncio
+from asgiref.wsgi import WsgiToAsgi
 
 
 app = Flask(__name__)
 app.config["CACHE_TYPE"] = os.environ.get("CACHE_TYPE", "SimpleCache")
+asgi_app = WsgiToAsgi(app)
 cache = Cache(app)
 cache_seconds = 3600
 
