@@ -41,7 +41,7 @@ async def rss(channel):
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
     except ChannelNotFound:
-        return "Channel not found", 404
+        return f"Channel not found or it cannot be previewed at https://t.me/s/{channel}", 404
 
 
 def get_message_divs(doc):
