@@ -1,7 +1,7 @@
 beautifulsoup4==4.12.2
 lxml==5.1.0
 Flask[async]==3.0.2
-asgiref>=3.2
+asgiref==3.8.1
 Flask-Caching==2.1.0
 pylibmc==1.6.3
 uvicorn[standard]==0.27.1
