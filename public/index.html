@@ -72,7 +72,7 @@ window.addEventListener("load", (event) => {
   document.querySelector("#channel").addEventListener("paste", (event) => {
     event.preventDefault();
     let paste = (event.clipboardData || window.clipboardData).getData("text");
-    event.target.value = paste.replace(/(https:\/\/)?(t|telegram)\.me\/(s\/)?/, "")
+    event.target.value = paste.replace(/@|((https:\/\/)?(t|telegram)\.me\/(s\/)?)/, "").replace(/\?.*$/, "").replace(/\W+/, "");
     event.target.dispatchEvent(new Event("input"))
   });
 });
