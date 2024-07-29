@@ -55,6 +55,11 @@ div#source a, div#source a:visited {
 #source {
   padding-top: 4em;
 }
+#stats {
+  padding-top: 2em;
+  font-size: 0.9em;
+  color: #444;
+}
   </style>
 </head>
 <body>
@@ -88,5 +93,17 @@ window.addEventListener("load", (event) => {
   <div id="source">
     <a target="_blank" href="https://github.com/haron/ch2rss">Source on GitHub</a>
   </div>
+  <div id="stats">&nbsp;</div>
+  <script>
+  fetch("/stats.json").then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
+      }
+      return response.json();
+  }).then(data => {
+    elem = document.querySelector("#stats");
+    elem.textContent = `📈 ${data.total_hits.toLocaleString()} hits served for ${data.channels} channels since March 2023`;
+  });
+  </script>
 </body>
 </html>

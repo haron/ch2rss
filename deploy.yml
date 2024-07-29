@@ -29,5 +29,9 @@
       file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/ch2rss.conf
       tags: full
 
+    - name: set stats.json permissions
+      file: path={{ prefix }}/public/stats.json state=touch owner=www-data group=www-data mode=0644
+      tags: full
+
     - name: restart process
       supervisorctl: name=ch2rss state=restarted

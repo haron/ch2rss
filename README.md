@@ -18,8 +18,8 @@ You will also need Ansible installed on your workstation.
 
 # Server setup speedrun
 
-    sudo add-apt-repository -y -u ppa:deadsnakes/ppa \
-        && sudo apt-get -y install memcached libmemcached-dev supervisor python3.12 python3.12-dev
+    sudo add-apt-repository -y -u ppa:deadsnakes/ppa
+    sudo apt-get -y install memcached libmemcached-dev supervisor python3.12 python3.12-dev redis-server
 
 # Check for security vulnerabilities and linter errors:
 
