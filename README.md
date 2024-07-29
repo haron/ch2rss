@@ -23,5 +23,5 @@ You will also need Ansible installed on your workstation.
 
 # Check for security vulnerabilities and linter errors:
 
-    pip install -r requirements-dev.txt
+    pip install -r dev-requirements.txt
     make
