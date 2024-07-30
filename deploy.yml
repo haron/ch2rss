@@ -33,5 +33,14 @@
       file: path={{ prefix }}/public/stats.json state=touch owner=www-data group=www-data mode=0644
       tags: full
 
+    - name: check if crontab file exists locally
+      local_action: stat path=crontab
+      register: crontab_file
+
+    - name: install crontab
+      file: state=link src={{ prefix }}/crontab dest=/etc/cron.d/ch2rss modification_time=now
+      when: crontab_file.stat.exists
+      tags: full
+
     - name: restart process
       supervisorctl: name=ch2rss state=restarted
