@@ -82,7 +82,16 @@ window.addEventListener("load", (event) => {
     event.target.value = paste.replace(/@|((https:\/\/)?(t|telegram)\.me\/(s\/)?)/, "").replace(/\?.*$/, "").replace(/\W+/, "");
     event.target.dispatchEvent(new Event("input"))
   });
+  setInterval(update_counter, 1000);
 });
+window.hits = 0;
+window.channels = 0;
+function update_counter(hits=0, channels=0) {
+  window.hits = hits || window.hits + 1;
+  window.channels = channels || window.channels;
+  elem = document.querySelector("#stats");
+  elem.textContent = `📈 ${window.hits.toLocaleString()} hits served for ${window.channels.toLocaleString()} channels since March 2023`;
+}
   </script>
   <h1>Create RSS feed from a Telegram channel</h1>
   <div class="big">
@@ -103,8 +112,7 @@ window.addEventListener("load", (event) => {
       }
       return response.json();
   }).then(data => {
-    elem = document.querySelector("#stats");
-    elem.textContent = `📈 ${data.total_hits.toLocaleString()} hits served for ${data.channels} channels since March 2023`;
+    update_counter(data.total_hits, data.channels);
   });
   </script>
 </body>
