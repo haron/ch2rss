@@ -2,7 +2,7 @@ import httpx
 from bs4 import BeautifulSoup
 from rfeed import Feed, Item
 from datetime import datetime
-from flask import Flask, make_response
+from flask import Flask, make_response, request
 from flask_caching import Cache
 from cssutils import parseStyle
 import os
@@ -29,14 +29,22 @@ class ChannelNotFound(Exception):
     pass
 
 
+def make_key(*args, **kwargs):
+    return f"{request.path}?{request.query_string}"
+
+
 @app.route("/<channel>")
-@cache.cached(timeout=cache_seconds)
+@cache.cached(timeout=cache_seconds, make_cache_key=make_key)
 async def rss(channel):
     if not re.match(r"^\w{5,32}$", channel):
         return "Invalid channel name", 400
 
     try:
-        resp = make_response(await channel_to_rss(channel))
+        resp = make_response(await channel_to_rss(
+            channel,
+            include=request.args.get("include"),
+            exclude=request.args.get("exclude"),
+        ))
         resp.headers["Content-type"] = "text/xml;charset=UTF-8"
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
@@ -94,23 +102,28 @@ def channel_not_found(doc):
         return True
 
 
-async def channel_to_rss(channel):
+async def channel_to_rss(channel, include=None, exclude=None):
     url = f"https://t.me/s/{channel}"
     doc = await get_doc_from_url(url)
     if channel_not_found(doc):
         raise ChannelNotFound()
+    items = [Item(**get_item_from_div(d)) for d in get_message_divs(doc)]
+    if exclude:
+        items = [i for i in items if exclude.lower() not in i.description.lower()]
+    if include:
+        items = [i for i in items if include.lower() in i.description.lower()]
     feed = Feed(
         title=doc.title.text,
         link=url,
         description=doc.select("meta[content][property='og:description']")[0].attrs["content"],
         lastBuildDate=datetime.now(),
-        items=[Item(**get_item_from_div(d)) for d in get_message_divs(doc)],
+        items=items,
     )
     return feed.rss()
 
 
 async def cli_main():
-    print(await channel_to_rss(sys.argv[1]))
+    print(await channel_to_rss(sys.argv[1], filter_str=sys.argv[2]))
 
 
 if __name__ == "__main__":

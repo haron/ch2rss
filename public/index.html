@@ -62,6 +62,12 @@ div#source a, div#source a:visited {
   font-size: 0.9em;
   color: #444;
 }
+.pseudolink {
+  cursor: pointer;
+  text-decoration: underline dashed;
+  -webkit-text-decoration: underline dashed;
+  color: #444;
+}
   </style>
 </head>
 <body>
@@ -71,6 +77,11 @@ window.addEventListener("load", (event) => {
     link = "";
     if (event.target.checkValidity() && event.target.value) {
       link = "https://ch2rss.fflow.net/" + event.target.value;
+      if (window.include || window.exclude) {
+        link += "?";
+        if (window.include) { link += `include=${encodeURIComponent(window.include)}` }
+        if (window.exclude) { link += `&exclude=${encodeURIComponent(window.exclude)}` }
+      }
     }
     elem = document.querySelector("#rss_link");
     elem.href = link;
@@ -80,12 +91,26 @@ window.addEventListener("load", (event) => {
     event.preventDefault();
     let paste = (event.clipboardData || window.clipboardData).getData("text");
     event.target.value = paste.replace(/@|((https:\/\/)?(t|telegram)\.me\/(s\/)?)/, "").replace(/\?.*$/, "").replace(/\W+/, "");
-    event.target.dispatchEvent(new Event("input"))
+    event.target.dispatchEvent(new Event("input"));
+  });
+  document.querySelector("#advanced .pseudolink").addEventListener("click", (event) => {
+    elem = document.querySelector("#advanced div");
+    elem.hidden = !elem.hidden;
+  });
+  document.querySelector("#include").addEventListener("input", (event) => {
+    window.include = event.target.value;
+    document.querySelector("#channel").dispatchEvent(new Event("input"))
+  });
+  document.querySelector("#exclude").addEventListener("input", (event) => {
+    window.exclude = event.target.value;
+    document.querySelector("#channel").dispatchEvent(new Event("input"))
   });
   setInterval(update_counter, 1000);
 });
 window.hits = 0;
 window.channels = 0;
+window.include = null;
+window.exclude = null;
 function update_counter(hits=0, channels=0) {
   window.hits = hits || window.hits + 1;
   window.channels = channels || window.channels;
@@ -97,6 +122,19 @@ function update_counter(hits=0, channels=0) {
   <div class="big">
     <label for="channel">t.me/</label>
     <input type="text" name="channel" id="channel" size="25" placeholder="channel name, 5-32 symbols" pattern="^[A-Za-z][A-Za-z0-9_]{4,31}$" title="5 to 32 symbols: letters, digits and _, starting with a letter">
+  </div>
+  <div id="advanced">
+    <span class="pseudolink">Advanced options</span>
+    <div hidden>
+      <p>
+        <label for="include">Only posts with a word:</label>
+        <input type="text" name="include" id="include" size="20">
+      </p>
+      <p>
+        <label for="exclude">Posts without a word:</label>
+        <input type="text" name="exclude" id="exclude" size="20">
+      </p>
+    </div>
   </div>
   <div id="link" class="big">
     Link to the RSS feed: <a id="rss_link" href=""></a>
