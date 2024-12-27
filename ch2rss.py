@@ -1,17 +1,17 @@
-import httpx
-from bs4 import BeautifulSoup
-from rfeed import Feed, Item
-from datetime import datetime
-from flask import Flask, make_response, request
-from flask_caching import Cache
-from cssutils import parseStyle
+import asyncio
 import os
 import re
-from textwrap import shorten
 import sys
-import asyncio
-from asgiref.wsgi import WsgiToAsgi
+from datetime import datetime
+from textwrap import shorten
 
+import httpx
+from asgiref.wsgi import WsgiToAsgi
+from bs4 import BeautifulSoup
+from cssutils import parseStyle
+from flask import Flask, make_response, request
+from flask_caching import Cache
+from rfeed import Feed, Item
 
 app = Flask(__name__)
 app.config["CACHE_TYPE"] = os.environ.get("CACHE_TYPE", "SimpleCache")
@@ -22,6 +22,7 @@ cache_seconds = 3600
 
 if app.config["CACHE_TYPE"] == "MemcachedCache":
     import pylibmc
+
     pylibmc.Client(["127.0.0.1"]).flush_all()
 
 
@@ -40,11 +41,13 @@ async def rss(channel):
         return "Invalid channel name", 400
 
     try:
-        resp = make_response(await channel_to_rss(
-            channel,
-            include=request.args.get("include"),
-            exclude=request.args.get("exclude"),
-        ))
+        resp = make_response(
+            await channel_to_rss(
+                channel,
+                include=request.args.get("include"),
+                exclude=request.args.get("exclude"),
+            )
+        )
         resp.headers["Content-type"] = "text/xml;charset=UTF-8"
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
@@ -72,7 +75,7 @@ def get_images_from_div(div):
     ret = []
     for elem in div.select("a[class~='tgme_widget_message_photo_wrap']"):
         style = parseStyle(elem["style"])
-        ret.append(re.sub(r'^url\((.+)\)$', r'\1', style.backgroundImage))
+        ret.append(re.sub(r"^url\((.+)\)$", r"\1", style.backgroundImage))
     return ret
 
 

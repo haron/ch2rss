@@ -1,10 +1,11 @@
-import re
 import json
-from pathlib import Path
+import re
 from collections import Counter
-from configargparse import ArgumentParser, ArgumentDefaultsRawHelpFormatter
-from pygtail import Pygtail
+from pathlib import Path
+
 import redis
+from configargparse import ArgumentDefaultsRawHelpFormatter, ArgumentParser
+from pygtail import Pygtail
 
 p = ArgumentParser(auto_env_var_prefix="STATS_", formatter_class=ArgumentDefaultsRawHelpFormatter)
 p.add("--log", help="log file to parse", default="/var/log/nginx/ch2rss.fflow.net-access.log")
@@ -14,7 +15,7 @@ p.add("--offset-dir", help="Offset file directory", default="/var/tmp")
 p.add("--out-json", help="Save all-time stats to JSON file", default="/var/www/ch2rss-prod/public/stats.json")
 args = p.parse_args()
 
-offset_file = Path(args.offset_dir) / (re.sub(r'\W', '-', args.log.strip("/")) + ".offset")
+offset_file = Path(args.offset_dir) / (re.sub(r"\W", "-", args.log.strip("/")) + ".offset")
 log_reader = Pygtail(args.log, offset_file=offset_file)
 redis_client = redis.Redis.from_url(args.redis_url)
 

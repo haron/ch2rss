@@ -7,23 +7,45 @@
     env: prod
     prefix: /var/www/ch2rss-{{ env }}
   tasks:
-    - name: flake8
-      local_action: shell which flake8 && flake8 --config ./.flake8 *.py
-
-    - name: create virtualenv
-      command: python3.12 -m venv {{ prefix }}
-      args:
-        creates: "{{ prefix }}/bin"
+    - name: remove existing virtualenv
+      file: path="{{ prefix }}/.venv" state=absent
       tags: full
 
     - name: upload {{ playbook_dir }} to {{ prefix }}
       synchronize: src={{ playbook_dir }}/ dest={{ prefix }} archive=no recursive=yes perms=yes
 
-    - name: install deps
-      command: bin/pip install -r requirements.txt
+    - name: create cache and tools directories
+      file: path={{ item }} state=directory owner=www-data
+      loop:
+        - /var/www/.local
+        - /var/www/.cache
+        - /var/www/.config
+        - /var/www/.ansible
+        - "{{ prefix }}/.venv"
+      tags: full
+
+    - name: cleanup UV cache
+      command: uv cache clean
       args:
         chdir: "{{ prefix }}"
+      become: true
+      become_user: www-data
       tags: full
+
+    - name: create virtualenv
+      shell: uv venv -q
+      args:
+        chdir: "{{ prefix }}"
+      become: true
+      become_user: www-data
+      tags: full
+
+    - name: install dependencies
+      shell: uv sync --frozen || uv sync --frozen --refresh
+      args:
+        chdir: "{{ prefix }}"
+      become: true
+      become_user: www-data
 
     - name: install supervisor config
       file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/ch2rss.conf
