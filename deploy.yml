@@ -38,7 +38,7 @@
       register: crontab_file
 
     - name: install crontab
-      file: state=link src={{ prefix }}/crontab dest=/etc/cron.d/ch2rss modification_time=now
+      copy: src=crontab dest=/etc/cron.d/ch2rss owner=root
       when: crontab_file.stat.exists
       tags: full
 
