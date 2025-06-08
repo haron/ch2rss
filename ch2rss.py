@@ -126,7 +126,10 @@ async def channel_to_rss(channel, include=None, exclude=None):
 
 
 async def cli_main():
-    print(await channel_to_rss(sys.argv[1], filter_str=sys.argv[2]))
+    include = None
+    if len(sys.argv) > 2:
+        include = sys.argv[2]
+    print(await channel_to_rss(sys.argv[1], include=include))
 
 
 if __name__ == "__main__":
