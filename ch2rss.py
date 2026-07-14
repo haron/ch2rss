@@ -52,7 +52,7 @@ async def rss(channel):
         resp.headers["Cache-Control"] = f"max-age={cache_seconds}"
         return resp
     except ChannelNotFound:
-        return f"Channel not found or it cannot be previewed at https://t.me/s/{channel}", 404
+        return f"Channel not found or it cannot be previewed at https://telegram.me/s/{channel}", 404
 
 
 def get_message_divs(doc):
@@ -106,7 +106,7 @@ def channel_not_found(doc):
 
 
 async def channel_to_rss(channel, include=None, exclude=None):
-    url = f"https://t.me/s/{channel}"
+    url = f"https://telegram.me/s/{channel}"
     doc = await get_doc_from_url(url)
     if channel_not_found(doc):
         raise ChannelNotFound()
