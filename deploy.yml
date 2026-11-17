@@ -5,7 +5,8 @@
   gather_facts: false
   vars:
     env: prod
-    prefix: /var/www/ch2rss-{{ env }}
+    slug: ch2rss-{{ env }}
+    prefix: /var/www/{{ slug }}
   tasks:
     - name: remove existing virtualenv
       file: path="{{ prefix }}/.venv" state=absent
@@ -48,7 +49,7 @@
       become_user: www-data
 
     - name: install supervisor config
-      file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/ch2rss.conf
+      file: state=link src={{ prefix }}/supervisor.conf dest=/etc/supervisor/conf.d/{{ slug }}.conf
       tags: full
 
     - name: set stats.json permissions
@@ -65,4 +66,4 @@
       tags: full
 
     - name: restart process
-      supervisorctl: name=ch2rss state=restarted
+      supervisorctl: name={{ slug }} state=restarted
